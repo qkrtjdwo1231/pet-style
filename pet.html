@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetGrooming Match - 맞춤 미용 매칭</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        .step-transition { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="pb-12">
+
+    <!-- Header -->
+    <header class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-indigo-600"><i class="fa-solid fa-scissors mr-2"></i>그루밍매치</h1>
+            <button class="text-gray-500"><i class="fa-solid fa-bars text-xl"></i></button>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 mt-6">
+        
+        <!-- Step 1: Selection Form -->
+        <section id="step-form" class="step-transition">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold mb-6 text-gray-800">우리 아이에게 딱 맞는<br>미용실을 찾아드릴게요 🐶</h2>
+                
+                <div class="space-y-4">
+                    <!-- Breed Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-2">견종 선택</label>
+                        <select id="breed-select" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="푸들">푸들</option>
+                            <option value="말티즈">말티즈</option>
+                            <option value="포메라니안">포메라니안</option>
+                            <option value="비숑">비숑</option>
+                            <option value="시바견">시바견 (중형견)</option>
+                        </select>
+                    </div>
+
+                    <!-- Style Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-2">원하는 스타일</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectStyle(this, '가위컷')" class="style-btn p-3 border rounded-xl text-sm hover:bg-indigo-50 border-gray-200 transition-colors">가위컷전문</button>
+                            <button onclick="selectStyle(this, '스포팅')" class="style-btn p-3 border rounded-xl text-sm hover:bg-indigo-50 border-gray-200 transition-colors">스포팅</button>
+                            <button onclick="selectStyle(this, '클리핑')" class="style-btn p-3 border rounded-xl text-sm hover:bg-indigo-50 border-gray-200 transition-colors">클리핑 (전체삭발)</option>
+                            <button onclick="selectStyle(this, '위생/목욕')" class="style-btn p-3 border rounded-xl text-sm hover:bg-indigo-50 border-gray-200 transition-colors">위생/목욕</button>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-2">지역 설정</label>
+                        <div class="relative">
+                            <input type="text" value="서울시 강남구 역삼동" readonly class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-500">
+                            <i class="fa-solid fa-location-dot absolute right-4 top-4 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <button onclick="findMatches()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold mt-4 shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all">
+                        미용실 찾기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: Loading (Matching Animation) -->
+        <section id="step-loading" class="hidden py-20 text-center">
+            <div class="inline-block animate-bounce mb-4 text-5xl">🔍</div>
+            <h3 class="text-xl font-bold text-gray-800">미용실 조건을 확인 중입니다...</h3>
+            <p class="text-gray-500 mt-2 text-sm">해당 스타일 전문 매장을 우선으로 매칭합니다.</p>
+        </section>
+
+        <!-- Step 3: Results -->
+        <section id="step-results" class="hidden space-y-4">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="font-bold text-gray-800"><span id="match-count">0</span>개의 매칭 결과</h3>
+                <button onclick="resetForm()" class="text-xs text-indigo-600 font-medium underline">다시 검색</button>
+            </div>
+            
+            <div id="results-list" class="space-y-4">
+                <!-- Result Cards will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- UI Interaction Script -->
+    <script>
+        let selectedStyle = "";
+
+        // 미용실 데이터 데이터베이스 (Mock)
+        const shopDatabase = [
+            {
+                id: 1,
+                name: "포포 그루밍 스튜디오",
+                specialty: ["푸들", "비숑"],
+                styles: ["가위컷", "스포팅"],
+                distance: "0.4km",
+                rating: 4.9,
+                reviews: 128,
+                status: "예약가능",
+                img: "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=300&fit=crop"
+            },
+            {
+                id: 2,
+                name: "댕댕 아틀리에",
+                specialty: ["말티즈", "포메라니안"],
+                styles: ["클리핑", "위생/목욕", "가위컷"],
+                distance: "0.8km",
+                rating: 4.7,
+                reviews: 84,
+                status: "확인필요",
+                img: "https://images.unsplash.com/photo-1591768793355-74d7c80b0e17?w=400&h=300&fit=crop"
+            },
+            {
+                id: 3,
+                name: "강남 펫살롱",
+                specialty: ["푸들", "말티즈", "시바견"],
+                styles: ["클리핑", "위생/목욕"],
+                distance: "1.2km",
+                rating: 4.5,
+                reviews: 210,
+                status: "예약가능",
+                img: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&h=300&fit=crop"
+            },
+            {
+                id: 4,
+                name: "구름 가위컷 전문점",
+                specialty: ["비숑", "포메라니안"],
+                styles: ["가위컷"],
+                distance: "1.5km",
+                rating: 5.0,
+                reviews: 45,
+                status: "예약마감",
+                img: "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=400&h=300&fit=crop"
+            }
+        ];
+
+        function selectStyle(btn, style) {
+            document.querySelectorAll('.style-btn').forEach(b => {
+                b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                b.classList.add('border-gray-200', 'text-gray-700');
+            });
+            btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+            btn.classList.remove('border-gray-200');
+            selectedStyle = style;
+        }
+
+        function findMatches() {
+            if (!selectedStyle) {
+                alert("원하는 미용 스타일을 선택해주세요.");
+                return;
+            }
+
+            const breed = document.getElementById('breed-select').value;
+            
+            // UI 전환: 폼 감추고 로딩 표시
+            document.getElementById('step-form').classList.add('hidden');
+            document.getElementById('step-loading').classList.remove('hidden');
+
+            // 1.5초 후 결과 표시 (매칭 시뮬레이션)
+            setTimeout(() => {
+                const results = shopDatabase.filter(shop => 
+                    shop.specialty.includes(breed) || shop.styles.includes(selectedStyle)
+                );
+
+                renderResults(results);
+                document.getElementById('step-loading').classList.add('hidden');
+                document.getElementById('step-results').classList.remove('hidden');
+            }, 1500);
+        }
+
+        function renderResults(results) {
+            const list = document.getElementById('results-list');
+            const count = document.getElementById('match-count');
+            count.innerText = results.length;
+            list.innerHTML = "";
+
+            if (results.length === 0) {
+                list.innerHTML = `<div class="text-center py-10 text-gray-500">조건에 맞는 미용실이 없습니다.</div>`;
+                return;
+            }
+
+            results.forEach(shop => {
+                const statusColor = shop.status === "예약가능" ? "bg-green-100 text-green-700" : (shop.status === "확인필요" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700");
+                
+                const card = `
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col">
+                        <div class="h-32 bg-gray-200 overflow-hidden relative">
+                            <img src="${shop.img}" class="w-full h-full object-cover" alt="${shop.name}">
+                            <div class="absolute top-3 right-3 ${statusColor} text-[10px] font-bold px-2 py-1 rounded-full uppercase">
+                                ${shop.status}
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-gray-800 text-base">${shop.name}</h4>
+                                <span class="text-indigo-600 font-bold text-sm"><i class="fa-solid fa-star mr-1"></i>${shop.rating}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">${shop.distance} | 리뷰 ${shop.reviews}개</p>
+                            
+                            <div class="flex flex-wrap gap-1 mb-4">
+                                ${shop.specialty.map(s => `<span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">#${s}전문</span>`).join('')}
+                                ${shop.styles.map(s => `<span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded">#${s}가능</span>`).join('')}
+                            </div>
+
+                            <button onclick="requestBooking('${shop.name}')" class="w-full bg-indigo-50 text-indigo-700 py-3 rounded-xl font-bold text-sm hover:bg-indigo-100 transition-colors">
+                                예약 가능 확인하기
+                            </button>
+                        </div>
+                    </div>
+                `;
+                list.innerHTML += card;
+            });
+        }
+
+        function requestBooking(shopName) {
+            alert(`${shopName}에 매칭 요청을 보냈습니다. 곧 미용사님이 연락드릴 예정입니다!`);
+        }
+
+        function resetForm() {
+            document.getElementById('step-results').classList.add('hidden');
+            document.getElementById('step-form').classList.remove('hidden');
+            selectedStyle = "";
+            document.querySelectorAll('.style-btn').forEach(b => {
+                b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                b.classList.add('border-gray-200', 'text-gray-700');
+            });
+        }
+    </script>
+</body>
+</html>
