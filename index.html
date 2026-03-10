@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetStyle - 완벽한 펫 미용 매칭 서비스</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">🐾 PetStyle</div>
+        <nav>
+            <ul>
+                <li><a href="#">서비스 소개</a></li>
+                <li><a href="#">미용실 찾기</a></li>
+                <li><a href="#">로그인</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1>우리 아이에게 딱 맞는<br><span class="highlight">완벽한 미용 스타일</span></h1>
+                <p>견종과 원하는 스타일을 선택하고, 가장 잘하는 주변 미용실을 매칭받으세요.</p>
+            </div>
+            
+            <div class="search-panel">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h2>견종 선택</h2>
+                    </div>
+                    <div class="options-grid" id="breed-options">
+                        <!-- Breed options will be generated here -->
+                    </div>
+                </div>
+
+                <div class="step disabled" id="style-step">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h2>미용 스타일 선택</h2>
+                    </div>
+                    <div class="options-grid" id="style-options">
+                        <p class="placeholder-text">먼저 견종을 선택해주세요.</p>
+                    </div>
+                </div>
+
+                <button id="search-btn" class="primary-btn" disabled>
+                    가까운 매장 찾기 <span class="arrow">→</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="results-section" class="results-section hidden">
+            <h2 class="results-title">✨ 매칭된 눈부신 뷰티샵</h2>
+            <div class="results-grid" id="shops-container">
+                <!-- Shop cards will be generated here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 PetStyle. 본 서비스는 데모 버전입니다.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
